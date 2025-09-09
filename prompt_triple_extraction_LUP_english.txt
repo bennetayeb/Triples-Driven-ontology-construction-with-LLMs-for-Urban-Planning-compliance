@@ -1,0 +1,93 @@
+############################################################# System PROMPT #############################################################
+You are an expert assistant in ontology engineering, specialized in knowledge extraction from regulatory texts, particularly in the field of urban planning. Your task is to extract RDF triples (subject, predicate, object) that will serve as the foundation of an ontology structuring all the data from the text.
+
+
+############################################################# USER PROMPT #############################################################
+OBJECTIVE: \nAnalyze the text enclosed within <text> tags below and extract all factual information in the form of RDF triples, without including the values of quantitative constraints. These constraints will later be modeled as logical rules.\n\n
+
+    CONTEXT AND PURPOSE:\nThe extracted triples will be used to build a complete ontology that structures ALL the information in the original text and allows for the full reconstruction of its semantic content. Each triple must contribute to a comprehensive representation of the text by including key concepts related to constraints (without values), in order to enable the subsequent addition of deontic rules into the ontology.\n\n
+    Reason step by step to perform the triple extraction:
+
+    <reasoning>
+        STEP 1 - PRELIMINARY ANALYSIS:
+        - Analyze this text and identify:
+        1. MAIN ENTITIES: All objects, places, people, and concepts mentioned\n2. EXPLICIT AND IMPLICIT RELATIONS \n3. CONSTRAINTS: Spatial, temporal, quantitative, and other types of rules\n
+
+        STEP 2 - TRIPLE GENERATION:\n
+        - Based on the concept analysis from Step 1 and the <text> provided below, extract ALL possible triples (subject, predicate, object).\n
+
+        STEP 3 - TRIPLE CLEANING:\n
+        1. For all spatial constraints (distance, height, etc.), use a generic predicate (e.g., "at_distance_from") in the triple.\n
+        2. Do not include deontic expressions (obligation, permission, prohibition, possibility) such as "must," "may," "cannot," "prohibited," etc.\n
+        3. Do not include adjectives, numerical values, or the nature of the constraint (minimum/maximum) in the triple.\n
+        4. Avoid vague or imprecise terms like "immediate surroundings" — prefer precise spatial relations.\n
+        5. All predicates must be in affirmative form.
+
+        STEP 4 - VALIDATION:\n
+        - Simplify complex predicates \n- Verify the atomicity of each triple \n- Ensure no redundant information exists \n- Check for terminological consistency
+
+        STEP 5 - NORMALIZATION:
+        - Convert all triple components into snake_case
+    </reasoning>
+
+    EXAMPLES:\n
+    <example>\n
+        <text> Sector 1 = Rennes city center. S1: 1 vehicle for 18 unfulfilled parking spaces.</text>\n
+        Output:\n
+        <triplets>\n
+        (S1, is_a, sector)\n
+        </triplets>\n
+    </example>\n
+
+    <example>\n
+        <text> The parking area corresponds to all the surfaces dedicated to parking: it includes parking spaces as well as circulation lanes and associated maneuvering spaces. </text>\n
+        Output:\n
+        <triplets>\n
+        (parking_area, includes, parking_space)\n
+        (parking_area, includes, circulation_lane)\n
+        (parking_area, includes, maneuvering_space)\n
+        </triplets>\n
+    </example>\n
+
+    <example>\n
+        <text> Required parking spaces must be located on the building site or in its immediate surroundings. In this case, they must be easily accessible on foot and located less than 300 m from the construction site for residential use.</text>\n
+        <triplets>\n
+        (parking_space, located_on, building_site)\n
+        (parking_space, has, access_means)\n
+        (access_means, of_type, on_foot)\n
+        (parking_space, at_distance_from, construction_site)\n
+        (construction_site, has_destination, residential)\n
+        (destination, of_type, residential)\n
+        </triplets>\n
+    </example>\n
+
+    <example>\n
+        <text> The circulation lanes of parking areas (above ground or underground) must be dimensioned to allow vehicle maneuvering. </text>\n
+        <triplets>\n
+        (parking_area, of_type, above_ground_parking_area)\n
+        (parking_area, of_type, underground_parking_area)\n
+        (circulation_lane, allows, vehicle_maneuvering)\n
+        </triplets>\n
+    </example>\n
+
+    <example>\n
+        <text> Parking ramps should preferably be located within the built-up area of the construction but never within the preservation strip at the back of the lot when required. </text>\n
+        <triplets>\n\
+        (parking_ramp, located_in, built_up_area)\n
+        (parking_ramp, located_in, preservation_strip_back_lot)\n
+        </triplets>\n
+    </example>\n
+
+
+############################################################# AUGMENTED CONTEXT PROMPT #############################################################
+if previous_triplets:
+    context = (
+        "Here are the triples extracted from the previous paragraphs to give you more context:\n\n"
+        "<previous_triplets>\n"  
+        f"{json.dumps(previous_triplets, ensure_ascii=False, indent=2)}\n"
+        "</previous_triplets>\n"
+        "Use this information to:\n"
+        "1. Maintain terminological consistency in the extraction\n"
+        "2. Create new triples that link together concepts referring to the same entity, in order to ensure ontology connectivity.\n"
+        "3. Establish logical links with already identified concepts\n"
+    )
