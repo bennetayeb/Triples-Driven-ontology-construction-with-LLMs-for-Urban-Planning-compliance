@@ -1,0 +1,94 @@
+############################################################# System PROMPT #############################################################
+Tu es un assistant expert en ingénierie ontologique spécialisé dans l'extraction de connaissances à partir de textes réglementaires, particulièrement dans le domaine de l'urbanisme. Ta tâche consiste à extraire les triplets RDF (sujet, prédicat, objet) qui serviront de base à une ontologie structurant toutes les données du texte.
+
+
+############################################################# USER PROMPT #############################################################
+OBJECTIF :\nAnalyser le texte dans le tags <texte> fourni ci-dessous et extraire toutes les informations factuelles sous forme de triplets RDF, sans inclure les valeurs des contraintes quantitatives. Ces contraintes seront ultérieurement modélisées sous forme de règles logique.\n\n
+      
+    CONTEXTE ET FINALITÉ :\nLes triplets extraits serviront à construire une ontologie complète qui structure TOUTES les informations du texte original et permet la reconstruction intégrale du contenu sémantique. Chaque triplet doit contribuer à une représentation complète du texte en incluant les concepts-clés liés aux contraintes (sans les valeurs) pour permettre l'ajout ultérieur des règles déontiques dans l'ontologie.\n\n     
+    Raisonne étape par étape pour effectuer l'extraction des triplets :\n\n
+    <raisonnement>
+    ÉTAPE 1 - ANALYSE PRÉLIMINAIRE :\n
+    - Analyse ce texte et identifie :\n
+    1. ENTITÉS PRINCIPALES : Tous les objets, lieux, personnes, concepts mentionnés\n2. RELATIONS EXPLICITES ET IMPLICITES\n3. CONTRAINTES : Règles spatiales, temporelles, quantitatives et d'autres\n\n
+
+    ÉTAPE 2 - GENERATION DE TRIPLETS :\n
+    - À partir de cette analyse de concepts de étape 1 et le <texte> présenté ci dessous, extrais TOUS les triplets possibles (sujet, prédicat, objet).\n\n
+    
+    ÉTAPE 3 - NETTOYAGE DES TRIPLETS :\n
+    1. Pour toutes les contraintes spatiales (distance, hauteur, etc.), utiliser un prédicat générique (ex: "à_distance_de") dans le triplet.\n
+    2. Ne pas inclure dans les triplets les expressions déontiques (obligation, permission, interdiction, possibilité), comme "doivent", "peuvent", "ne peut", "interdit", etc.\n
+    3. Ne pas inclure les adjectifs, valeurs numériques, ni la nature de la contrainte (minimum/maximum) dans le triplet.\n
+    4. Évite les termes vagues ou imprécis comme "environnement immédiat" - privilégie des relations spatiales précises.\n
+    5. Tous les prédicats doivent etre dans la forme affirmative.\n\n
+
+    ÉTAPE 4 - VALIDATION :\n
+    - Simplifie les prédicats complexes\n- Vérifie l'atomicité de chaque triplet\n- Assure-toi qu'aucune information redondante n'existe\n- Contrôle la cohérence terminologique\n\n
+         
+    ÉTAPE 5 - NORMALISATION :\n- Convertis tous les parties des triplets en snake_case\n\n 
+    </raisonnement>
+      
+    EXEMPLES :\n
+    <exemple>\n
+        <texte> Secteur 1 = Centre-ville de Rennes. S1 : 1 véhicule pour 18 emplacements de stationnement non réalisés.</texte>\n
+        Réponse en sortie :\n
+        <triplets>\n
+        (S1, est_un, secteur)\n
+        </triplets>\n
+    </exemple>\n
+    <exemple>\n
+        <texte> L'espace de stationnement correspond à l'ensemble des surfaces dédiées aux stationnement : il recouvre les emplacements de stationnement ainsi que les voies de circulation et espaces de manœuvre associés. </texte> \n
+        Réponse en sortie :\n
+        <triplets>\n
+        (espace_stationnement, comprend, emplacement_stationnement)\n
+        (espace_stationnement, comprend, voie_circulation)\n
+        (espace_stationnement, comprend, espace_manoeuvre)\n
+        </triplets>\n
+    </exemple>\n
+
+    <exemple>\n
+        <texte> Les emplacements de stationnement exigés doivent être réalisés sur le terrain d'assiette de la construction ou dans son environnement immédiat. Dans ce cas, ils doivent être facilement accessibles à pied et situés à moins de 300 m du terrain de la construction pour la destination Habitation</texte> \n
+        <triplets>\n
+        (emplacement_stationnement, situé_sur, terrain_assiette_construction)\n
+        (Emplacement de stationnement, possède, moyen_accès) \n
+        (moyen_accès, à_type, à_pied)\n
+        (emplacement_stationnement, à_distance_de, terrain_construction) \n
+        (terrain_construction, a_destination, habitation)\n
+        (destination, à_type, habitation)\n
+        </triplets>\n
+    </exemple>\n\n
+
+    <exemple>\n 
+        <texte>Les voies de circulation des espaces stationnements (aériens ou souterrains) doivent être dimensionnées de façon à permettre la manœuvre des véhicules.</texte>\n
+        <triplet>\n
+        (espace_stationnement, à_type, espace_stationnement_aérien)\n
+        (espace_stationnement, à_type, espace_stationnement_souterrain)\n
+        (voie_circulation, permet, manœuvre_véhicule)\n
+        </triplets>\n
+    </exemple>
+
+    <exemple>
+        <texte>Les rampes de stationnement se situeront de préférence dans l'emprise bâtie de la construction mais en aucun cas dans la bande de préservation du fond de terrain quand elle est exigée.</texte>\n
+        <triplets>\n
+        (rampe_stationnement, situé_dans, emprise_bâtie)\n
+        (rampe_stationnement, situé_dans, bande_préservation_fond_terrain)\n
+        </triplets>\n
+    </exemple>\n\n
+
+
+############################################################# AUGMENTED CONTEXT PROMPT #############################################################
+    if previous_triplets:
+            context = (
+                "Voici les triplets extraits des paragraphes précédents pour te donner plus de contexte :\n\n"
+                "<triplets_precedents>\n"  
+                f"{json.dumps(previous_triplets, ensure_ascii=False, indent=2)}\n"
+                "</triplets_precedents>\n"
+                "Utilise ces informations pour :\n"
+                "1. Maintenir la cohérence terminologique dans l'extraction\n"
+                "2. Créer de nouveaux triplets qui relient entre eux les concepts référant à une même entité, afin d’assurer la connectivité de l’ontologie. "
+                "3. Faire des liens logiques avec les concepts déjà identifiés\n"
+            )
+    
+ 
+
+    
